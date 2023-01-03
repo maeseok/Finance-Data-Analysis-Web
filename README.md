@@ -9,4 +9,4 @@ Python + Django + Html + Css + Js
 
 
 
-http://188.166.178.202:8000
+http:143.198.196.90:8000
