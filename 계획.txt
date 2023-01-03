@@ -1,0 +1,200 @@
+Django로 변환 
+-> model 부분 즉 DB부분은 아마 마지막에 건드릴듯 (models.py)
+-> templeate, view는 바로 (settings.py)
+-> url 설계도 해야함 (urls.py)
+-> 로직 설계 (views.py)
+-> 애플리케이션을 여러 프로젝트에 사용할 수 있고, 프로젝트를 모아 큰 프로젝트를 만들 수 있다.
+
+2022-11-04
+#프로젝트 생성 -> 생성 시 기본적인 애플리케이션도 추가됨
+ django-admin startproject Finacne
+#애플리케이션 생성
+ python3 manage.py startapp Inquiry
+#데이터베이스에 반영(시작)
+ python3 manage.py migrate
+#runserver 실행하기
+ python3 manage.py runserver 0.0.0.0:8000
+#settings.py에 이 내용을 설정하여야 runserver가 정상적으로 실행
+(ALLOWED_HOSTS = ['0.0.0.0:8000', 'localhost','188.166.178.202'])
+#관리자 생성
+ python3 manage.py createsuperuser
+----------------------------------------------------------------
+
+2022-11-05
+#model 코딩
+ settings.py - DATABASES (sqllite3로 시작), INSTALLED_APPS에 애플리케이션 등록, TIME_ZONE 수정
+ models.py - 테이블을 하나의 클래스로 정의, 테이블의 컬럼은 클래스의 변수로 매핑 
+ admin.py - 이전 내용 admin 페이지에 반영
+ python manage.py makemigrations
+ python manage.py migrate
+
+2022-11-12
+#View 및 Templeate 코딩
+ 1. 프로젝트 urls.py에서 모두 관리 가능하지만, 유지보수 위해 각각의 앱에 urls.py 추가하는게 좋음.
+ 2. 앱에 추가 후 최종적으로 프로젝트 urls.py에 #path('Inquiry/', include('Inquiry.urls')) 이런 식으로 앱 별로 작성해야함
+ views.py와 urls.py는 세트 urls에 설정한 url 접속 시 views에 있는 함수 실행하여 html 파일 불러옴
+ url에 입력된 get 데이터 값 사용하려면 정규표현식 사용
+
+- Index, Inquiry, Portfolio로 애플리케이션 구성
+- Index 중에 home(로그인 구현 후 수정필요)과 main 페이지 구성 완료, login 관련은 db 연동 필요하니 마지막쯤에
+- login 먼저 해결해야 할듯 
+- url 코드 수정까지 완료
+
+2022-11-13
+home페이지에 session 및 messages 오류 고치기 -> 대강 완료, 결국 로그인, 회원가입 구현할 때 해야할듯
+
+2022-11-14
+포스팅 정리 후 1개
+
+2022-11-15
+공유로 사용할 html 분석해서 만들어야할듯 -> 완료
+/나 home은 프로젝트 단에 url 놓아야할듯 -> index를 ""로 사용하기로 함 -> 관련 html 링크 다 수정필요
+위 내용 포스팅 1
+
+2022-11-16
+템플릿 상속한 html 파일 자세히 확인 및 정상적으로 수정
+
+2022-11-17
+static과 form 사용 방식 모든 파일에 적용
+(static, form url 방식 현재 이미 설정되어 있어 템플릿 방식으로 변환 안하기로 결정)
+
+2022-11-22
+model 시작 
+
+2022-12-02
+1. url templeate 관련은 완성 -> model 이후 생기는 문제점을 해결해야함 (메시지 및 로그인 세션)
+2. 회원가입 등의 model 완성해야함 (orm이용하여서->sql은 나중에)
+3. 구현 후 정상적으로 1번 문제점 해결 및 기존 파이썬 코드 연결
+4. home부터 시작하여 파이썬 코드 수정하여 정상적으로 기동
+
+2022-12-03
+model 이론 학습
+installed_apps에 app의 config 추가해줘야 테이블 생성 가능
+python manage.py makemigrations -> 이걸 해줘야 모델이 신규로 생성 또는 변경됨
+python manage.py migrate -> 적용
+python manage.py sqlmigrate 앱+이름 -> 저장 전에 어떤 쿼리가 실행되는지 조회할 수 있다.
+
+- 모델 사용법
+python manage.py shell - 쉘 사용하기
+from pybo.models import 모델이름 - 이런 식으로 쉘에서 사용한다.
+
+1. Question 생성
+>>>q = Question(subject='pybo가 무엇인가요?', content='pybo에 대해서 알고 싶습니다.', create_date=timezone.now())
+>>> q.save() -> q.id -> 1부터 생성
+
+2. Question 조회
+>>>Question.objects.all() -> id가 출력
+   Question.objects.filter(id=1) -> id가 1인 값 출력
+   Question.objects.get(id=1) -> id가 1인 값 출력(반드시 1건의 데이터를 검색할 때만)
+>>>     def __str__(self):
+        return self.subject  (models.py 이렇게 추가) -> subject가 출력됨
+
+3. Question 수정
+>>>q = Question.objects.get(id=2)
+>>>q.subject = 'Django Model Question'
+>>>q.save()
+
+4. Question 삭제
+>>> q = Question.objects.get(id=1)
+>>> q.delete()
+
+
+2022-12-04
+-장고 관리자 
+>>>admin.site.register(모델) -> admin.py에 등록
+
+-모델 검색
+>>>class QuestionAdmin(admin.ModelAdmin): 
+       search_fields = ['subject']
+    admin.site.register(모델,QuestionAdmin) -> admin.py에 추가 (어드민 페이지에 검색 추가됨)
+
+-views.py
+>>>def index(request):
+       question_list = Question.objects.order_by('-create_date')
+       context = {'question_list': question_list}
+       return render(request, 'pybo/question_list.html', context)
+위와 같은 방법으로 model을 views에서 가져와서 html에 활용 가능
+
+-url 별칭 - url을 자주 변경할 때 사용한다.
+>>>  path('<int:question_id>/', views.detail, name='detail'), -> urls.py에 name을 정의해줌
+>>> <li><a href="{% url 'detail' question.id %}">{{ question.subject }}</a></li> -> html에서 이렇게 사용
+>>>app_name = 'pybo' -> 각각의 앱마다 urls.py에 앱 이름을 정의해줘야 중복 방지가능
+
+-데이터 html에서 사용하기
+views에서 함수로 model과 연결하여 html에 보낸 후 html에서 이렇게 사용
+<h5>{{ question.answer_set.count }}개의 답변이 있습니다.</h5>
+<div>
+    <ul>
+    {% for answer in question.answer_set.all %}
+        <li>{{ answer.content }}</li>
+    {% endfor %}
+    </ul>
+</div>
+
+2022-12-05
+- forms.py (신규 생성)
+from django import forms
+from pybo.models import Question
+
+class QuestionForm(forms.ModelForm): -> ModelForm은 바로 model에 저장됨
+    class Meta: #Meta 클래스는 사용할 모델과 속성을 명시
+        model = Question  # 사용할 모델
+        fields = ['subject', 'content']  # QuestionForm에서 사용할 Question 모델의 속성
+        widgets = {
+            'subject': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 10}),
+        } ->  style 추가
+        labels = {
+            'subject': '제목',
+            'content': '내용',
+        } -> 레이블 값 한글로 출력
+
+- views.py (추가)
+from .forms import QuestionForm
+(... 생략 ...)
+def question_create(request):
+    form = QuestionForm()
+    return render(request, 'pybo/question_form.html', {'form': form})
+
+- question_create 함수 수정
+def question_create(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.create_date = timezone.now()
+            question.save()
+            return redirect('pybo:index')
+    else:
+        form = QuestionForm()
+    context = {'form': form}
+    return render(request, 'pybo/question_form.html', context)
+
+
+2022-12-09
+-페이징 처리
+자체는 너무 까다로움 -> 아마 할 일 없을 듯 만약 하게되면 3-02 참고
+
+3-01~3-04는 커뮤니티 활동 관련한 내용으로 조회 시스템과는 거리가 있음
+
+2022-12-11
+- 로그인과 로그아웃은 공통 기능을 가진 앱에 구현하는 것이 좋다.
+- 회원가입까지 설정 완료 후 블로그 포스팅 완료
+
+2022-12-12
+- auth vs model ? 
+
+2022-12-13
+- 로그인 로그아웃 모두 구현 완료 후 포스팅까지
+
+2022-12-15
+- 나머지 페이지 구현, 세션작업
+
+
+2022-12-18
+- INDEX 어플리케이션 모두 완료 -> 이후 INQUIRY 모두 구현
+- 이후 PORTFOLIO의 DB연결 및 코드 수정이 관건
+
+2022-12-19
+- autocomplite 완성 및 차트 수정 -> 결국 근본적으로 html파일의 경로 인식이 잘못됨
+- INUQIRY 모두 구현

@@ -1,0 +1,14 @@
+
+#session 및 messages 
+https://wonpaper.tistory.com/459
+https://ssungkang.tistory.com/entry/Djangomessage-framework-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0
+
+#user 모델 설정
+https://arotein.tistory.com/23
+https://link2me.tistory.com/2114
+
+#점프 투 장고를 통해 학습
+https://wikidocs.net/71259
+
+#autocomplete
+https://heiswed.tistory.com/entry/%EC%9E%A5%EA%B3%A0Django-%EA%B0%9C%EB%B0%9C-JQuery%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-Ajax%EC%99%80-Autocomplete-%EC%98%88%EC%A0%9C
